@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>日本語 Japan Bootcamp</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=DM+Mono:wght@400;500&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1008;
+    --paper: #faf6ef;
+    --red: #c0392b;
+    --gold: #b8860b;
+    --muted: #7a6a5a;
+    --light: #ede8df;
+    --accent: #d4522a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Mono', monospace;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 2rem 2rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '日本';
+    position: absolute;
+    right: -1rem;
+    top: -1rem;
+    font-family: 'Noto Serif JP', serif;
+    font-size: 8rem;
+    color: rgba(255,255,255,0.04);
+    line-height: 1;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  header h1 span { color: var(--accent); font-style: italic; }
+  header p {
+    margin-top: 0.5rem;
+    color: rgba(250,246,239,0.55);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* NAV TABS */
+  nav {
+    display: flex;
+    background: var(--ink);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav::-webkit-scrollbar { display: none; }
+  nav button {
+    flex: 0 0 auto;
+    padding: 0.85rem 1.4rem;
+    background: none;
+    border: none;
+    color: rgba(250,246,239,0.45);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  nav button:hover { color: var(--paper); }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* MAIN */
+  main { padding: 1.5rem 1.2rem 4rem; max-width: 680px; margin: 0 auto; }
+
+  /* SECTION PANELS */
+  .panel { display: none; animation: fadeUp 0.3s ease; }
+  .panel.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* CATEGORY LABEL */
+  .cat-label {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 1.8rem 0 0.8rem;
+  }
+  .cat-label span.jp {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.1rem;
+    color: var(--accent);
+  }
+  .cat-label span.en {
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-top: 1px solid var(--muted);
+    padding-top: 2px;
+    flex: 1;
+  }
+
+  /* PHRASE CARDS */
+  .phrase-card {
+    background: white;
+    border: 1px solid var(--light);
+    border-radius: 6px;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+  }
+  .phrase-card:hover { border-color: var(--accent); transform: translateX(2px); }
+  .phrase-card .jp-text {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.25rem;
+    color: var(--ink);
+    line-height: 1.4;
+  }
+  .phrase-card .romaji {
+    font-size: 0.75rem;
+    color: var(--accent);
+    margin-top: 0.2rem;
+    letter-spacing: 0.05em;
+  }
+  .phrase-card .meaning {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 0.15rem;
+  }
+  .phrase-card .tip {
+    display: none;
+    margin-top: 0.7rem;
+    padding-top: 0.7rem;
+    border-top: 1px dashed var(--light);
+    font-size: 0.73rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .phrase-card.open .tip { display: block; }
+  .phrase-card .toggle-hint {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    font-size: 0.65rem;
+    color: var(--light);
+    letter-spacing: 0.05em;
+  }
+  .phrase-card:hover .toggle-hint { color: var(--muted); }
+
+  /* BOOTCAMP */
+  .week-header {
+    background: var(--ink);
+    color: var(--paper);
+    border-radius: 6px;
+    padding: 1rem 1.2rem;
+    margin: 1.5rem 0 0.6rem;
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  .week-header .week-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    color: var(--accent);
+    font-style: italic;
+    line-height: 1;
+  }
+  .week-header .week-info { flex: 1; }
+  .week-header .week-title {
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .week-header .week-goal {
+    font-size: 0.7rem;
+    color: rgba(250,246,239,0.5);
+    margin-top: 0.2rem;
+  }
+
+  .day-card {
+    background: white;
+    border: 1px solid var(--light);
+    border-radius: 6px;
+    margin-bottom: 0.45rem;
+    overflow: hidden;
+  }
+  .day-card-header {
+    padding: 0.8rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .day-card-header:hover { background: var(--light); }
+  .day-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--accent);
+    font-weight: 700;
+    min-width: 2.5rem;
+    line-height: 1;
+  }
+  .day-title { font-size: 0.78rem; letter-spacing: 0.04em; }
+  .day-subtitle { font-size: 0.68rem; color: var(--muted); margin-top: 0.1rem; }
+  .day-badge {
+    margin-left: auto;
+    font-size: 0.62rem;
+    background: var(--light);
+    color: var(--muted);
+    padding: 0.2rem 0.5rem;
+    border-radius: 20px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .day-body {
+    display: none;
+    padding: 0 1rem 1rem;
+    border-top: 1px solid var(--light);
+  }
+  .day-card.open .day-body { display: block; }
+  .day-body ul {
+    list-style: none;
+    margin-top: 0.7rem;
+  }
+  .day-body ul li {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.6;
+    padding-left: 1rem;
+    position: relative;
+  }
+  .day-body ul li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+  .day-body .focus-phrase {
+    margin-top: 0.8rem;
+    background: var(--light);
+    border-radius: 4px;
+    padding: 0.6rem 0.8rem;
+  }
+  .day-body .focus-phrase .label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+  .day-body .focus-phrase .jp {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 1.1rem;
+    margin-top: 0.1rem;
+    color: var(--ink);
+  }
+  .day-body .focus-phrase .rom {
+    font-size: 0.7rem;
+    color: var(--accent);
+  }
+
+  /* TIPS PAGE */
+  .tip-block {
+    background: white;
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    padding: 1rem 1.1rem;
+    margin-bottom: 0.7rem;
+  }
+  .tip-block h3 {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 0.4rem;
+  }
+  .tip-block p, .tip-block li {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .tip-block ul { list-style: none; padding-left: 0.5rem; }
+  .tip-block ul li::before { content: '· '; color: var(--accent); }
+
+  /* QUIZ */
+  .quiz-box {
+    background: white;
+    border: 1px solid var(--light);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    text-align: center;
+  }
+  .quiz-box .q-jp {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 2rem;
+    margin-bottom: 0.4rem;
+  }
+  .quiz-box .q-hint {
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-bottom: 1.2rem;
+  }
+  .quiz-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+  .quiz-options button {
+    padding: 0.7rem;
+    border: 1px solid var(--light);
+    border-radius: 5px;
+    background: var(--paper);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .quiz-options button:hover { border-color: var(--accent); }
+  .quiz-options button.correct { background: #e8f5e9; border-color: #4caf50; color: #2e7d32; }
+  .quiz-options button.wrong { background: #ffebee; border-color: #ef9a9a; color: #c62828; }
+  #quiz-result {
+    font-size: 0.78rem;
+    min-height: 1.5em;
+    color: var(--muted);
+  }
+  #quiz-next {
+    margin-top: 1rem;
+    padding: 0.6rem 1.5rem;
+    background: var(--ink);
+    color: var(--paper);
+    border: none;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    display: none;
+  }
+  #quiz-next:hover { background: var(--accent); }
+  .score-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0;
+    margin-bottom: 0.5rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .score-bar strong { color: var(--accent); font-size: 1rem; }
+
+  .section-intro {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid var(--light);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Japan <span>Survival</span><br>Phrasebook</h1>
+  <p>3-week bootcamp · Restaurant to daily life</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showPanel('phrases')">Phrases</button>
+  <button onclick="showPanel('bootcamp')">Bootcamp</button>
+  <button onclick="showPanel('quiz')">Quiz</button>
+  <button onclick="showPanel('tips')">Tips</button>
+</nav>
+
+<main>
+
+<!-- ===== PHRASES ===== -->
+<div class="panel active" id="panel-phrases">
+  <div class="section-intro">Tap any phrase to reveal usage tips. The romaji is your pronunciation guide — read it like English.</div>
+
+  <!-- RESTAURANT -->
+  <div class="cat-label"><span class="jp">食堂</span><span class="en">Restaurant & Food</span></div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">これをください</div>
+    <div class="romaji">Kore wo kudasai</div>
+    <div class="meaning">I'll have this one, please</div>
+    <div class="tip">🍱 Point at the menu item or plastic food display while saying this. Works in any restaurant — no other words needed.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">二人です</div>
+    <div class="romaji">Futari desu</div>
+    <div class="meaning">Table for two</div>
+    <div class="tip">👥 Hold up two fingers as you say it. For other numbers: hitori (1), sannin (3), yonin (4). The host will usually understand fingers alone.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">ありがとうございます</div>
+    <div class="romaji">Arigatō gozaimasu</div>
+    <div class="meaning">Thank you (polite)</div>
+    <div class="tip">🙏 The full polite form. A slight bow adds warmth. Casual "arigatō" works between peers, but in shops and restaurants use the full version.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">すみません</div>
+    <div class="romaji">Sumimasen</div>
+    <div class="meaning">Excuse me / Sorry (to get attention)</div>
+    <div class="tip">🙋 Your most-used word. Call a waiter, squeeze past someone, interrupt someone — this covers all of it. Say it with a slight bow.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">お会計をお願いします</div>
+    <div class="romaji">Okaikei wo onegaishimasu</div>
+    <div class="meaning">The bill, please</div>
+    <div class="tip">💴 Or mime writing on your palm — staff will understand. Many restaurants have a ticket machine at the door instead of table billing.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">おいしい！</div>
+    <div class="romaji">Oishii!</div>
+    <div class="meaning">Delicious!</div>
+    <div class="tip">😋 Japanese chefs and hosts genuinely appreciate this. Say it after your first bite and they'll love you.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">水をください</div>
+    <div class="romaji">Mizu wo kudasai</div>
+    <div class="meaning">Water, please</div>
+    <div class="tip">💧 Water is almost always free in Japan. Tap water is perfectly safe and clean everywhere.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">アレルギーがあります</div>
+    <div class="romaji">Arerugī ga arimasu</div>
+    <div class="meaning">I have an allergy</div>
+    <div class="tip">⚠️ Follow with the food: "ebi" (shrimp), "nattsu" (nuts), "guruten" (gluten). Consider carrying an allergy card in Japanese — restaurants take this very seriously.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">おすすめは何ですか？</div>
+    <div class="romaji">Osusume wa nan desu ka?</div>
+    <div class="meaning">What do you recommend?</div>
+    <div class="tip">⭐ Staff will be delighted you asked. Point to what they suggest and say "kore wo kudasai."</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">いただきます</div>
+    <div class="romaji">Itadakimasu</div>
+    <div class="meaning">Let's eat (said before eating)</div>
+    <div class="tip">🥢 Said before a meal, hands together. There's no direct English translation — it's gratitude for the food and everyone involved in making it.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">ごちそうさまでした</div>
+    <div class="romaji">Gochisōsama deshita</div>
+    <div class="meaning">Thank you for the meal (after eating)</div>
+    <div class="tip">🙏 Said when leaving a restaurant. Staff will bow and appreciate it enormously. Makes you instantly likeable.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">持ち帰りで</div>
+    <div class="romaji">Mochikaeri de</div>
+    <div class="meaning">To take away</div>
+    <div class="tip">📦 For eat-in say "koko de" instead. At convenience stores (konbini), you can just point to the item.</div>
+  </div>
+
+  <!-- GREETINGS -->
+  <div class="cat-label"><span class="jp">挨拶</span><span class="en">Greetings & Politeness</span></div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">こんにちは</div>
+    <div class="romaji">Konnichiwa</div>
+    <div class="meaning">Hello / Good afternoon</div>
+    <div class="tip">☀️ Used from midday to early evening. Morning: "ohayō gozaimasu." Evening: "konbanwa."</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">おはようございます</div>
+    <div class="romaji">Ohayō gozaimasu</div>
+    <div class="meaning">Good morning</div>
+    <div class="tip">🌅 Used until about 11am. Drop the "gozaimasu" with people your own age in casual settings.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">はい / いいえ</div>
+    <div class="romaji">Hai / Iie</div>
+    <div class="meaning">Yes / No</div>
+    <div class="tip">✅ "Hai" also means "okay" or "understood." Japanese people often avoid a direct "iie" — watch for hesitation or "chotto..." (a little difficult) which usually means no.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">わかりません</div>
+    <div class="romaji">Wakarimasen</div>
+    <div class="meaning">I don't understand</div>
+    <div class="tip">🤷 Smile when you say it. Staff will often switch to gestures or show you a phone translator.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">英語を話せますか？</div>
+    <div class="romaji">Eigo wo hanasemasu ka?</div>
+    <div class="meaning">Do you speak English?</div>
+    <div class="tip">💬 Many younger people in cities have some English. In rural areas, Google Translate camera mode is your best friend.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">もう一度お願いします</div>
+    <div class="romaji">Mō ichido onegaishimasu</div>
+    <div class="meaning">Please say that again</div>
+    <div class="tip">🔁 Also works with a gesture — rotate your hand as if winding something. Staff are patient and helpful.</div>
+  </div>
+
+  <!-- SHOPPING -->
+  <div class="cat-label"><span class="jp">買い物</span><span class="en">Shopping & Money</span></div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">いくらですか？</div>
+    <div class="romaji">Ikura desu ka?</div>
+    <div class="meaning">How much is this?</div>
+    <div class="tip">💰 Shopkeepers may show you a calculator with the number. Japan is largely cash-based — always carry yen. Post office ATMs (JP Bank) reliably accept foreign cards.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">カードで払えますか？</div>
+    <div class="romaji">Kādo de haraemasu ka?</div>
+    <div class="meaning">Can I pay by card?</div>
+    <div class="tip">💳 Many small restaurants and shops are cash-only. Look for card symbols on the door, or ask before ordering.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">袋はいりません</div>
+    <div class="romaji">Fukuro wa irimasen</div>
+    <div class="meaning">No bag needed, thanks</div>
+    <div class="tip">🛍️ Japan charges for plastic bags. Saying this saves money and shows eco-awareness — staff appreciate it.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">見ているだけです</div>
+    <div class="romaji">Mite iru dake desu</div>
+    <div class="meaning">I'm just looking</div>
+    <div class="tip">👀 Staff in Japan are attentive and will often greet you and offer help. This is a polite way to browse freely.</div>
+  </div>
+
+  <!-- TRANSPORT -->
+  <div class="cat-label"><span class="jp">交通</span><span class="en">Transport & Navigation</span></div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">〜はどこですか？</div>
+    <div class="romaji">~ wa doko desu ka?</div>
+    <div class="meaning">Where is [place]?</div>
+    <div class="tip">🗺️ Replace ~ with the place name. E.g. "Toire wa doko desu ka?" = Where is the toilet? Show the kanji/name on your phone for place names.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">〜に行きたいです</div>
+    <div class="romaji">~ ni ikitai desu</div>
+    <div class="meaning">I want to go to [place]</div>
+    <div class="tip">🚉 For taxis, just show the destination on your phone. Most taxi drivers won't speak English but navigate by GPS.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">右 / 左 / まっすぐ</div>
+    <div class="romaji">Migi / Hidari / Massugu</div>
+    <div class="meaning">Right / Left / Straight ahead</div>
+    <div class="tip">↔️ Essential for giving or following directions. Gesture as you say them — people will understand immediately.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">〜番線はどこですか？</div>
+    <div class="romaji">~ bansen wa doko desu ka?</div>
+    <div class="meaning">Where is platform [number]?</div>
+    <div class="tip">🚆 Japanese train stations are well-signposted in English, but this helps in older rural stations. IC card (Suica/Pasmo) removes most ticketing stress.</div>
+  </div>
+
+  <!-- EMERGENCIES -->
+  <div class="cat-label"><span class="jp">緊急</span><span class="en">Emergencies</span></div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">助けてください！</div>
+    <div class="romaji">Tasukete kudasai!</div>
+    <div class="meaning">Help, please!</div>
+    <div class="tip">🆘 Police: 110. Ambulance/Fire: 119. Japan is very safe — police boxes (koban) are everywhere and staff are extremely helpful.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">病院はどこですか？</div>
+    <div class="romaji">Byōin wa doko desu ka?</div>
+    <div class="meaning">Where is the hospital?</div>
+    <div class="tip">🏥 Take out travel insurance. Japan's healthcare is excellent but can be expensive for foreigners without insurance.</div>
+  </div>
+
+  <div class="phrase-card" onclick="toggleCard(this)">
+    <span class="toggle-hint">tap</span>
+    <div class="jp-text">財布をなくしました</div>
+    <div class="romaji">Saifu wo nakushimashita</div>
+    <div class="meaning">I've lost my wallet</div>
+    <div class="tip">🔍 Japan has the world's highest lost-and-found return rate. Go to the nearest koban (police box). Your wallet will very likely be returned.</div>
+  </div>
+
+</div>
+
+<!-- ===== BOOTCAMP ===== -->
+<div class="panel" id="panel-bootcamp">
+  <div class="section-intro">A 3-week structured plan. Spend 15–20 mins daily. Each day has a focus phrase to drill + tasks to reinforce it. Tap any day to expand.</div>
+
+  <!-- WEEK 1 -->
+  <div class="week-header">
+    <span class="week-num">1</span>
+    <div class="week-info">
+      <div class="week-title">Foundation Week</div>
+      <div class="week-goal">Core survival phrases + restaurant basics</div>
+    </div>
+  </div>
+
+  <!-- Days 1-7 -->
+  <div id="days-w1"></div>
+
+  <!-- WEEK 2 -->
+  <div class="week-header">
+    <span class="week-num">2</span>
+    <div class="week-info">
+      <div class="week-title">Confidence Week</div>
+      <div class="week-goal">Shopping, transport, numbers & chaining phrases</div>
+    </div>
+  </div>
+  <div id="days-w2"></div>
+
+  <!-- WEEK 3 -->
+  <div class="week-header">
+    <span class="week-num">3</span>
+    <div class="week-info">
+      <div class="week-title">Fluency Drills</div>
+      <div class="week-goal">Speed, culture, polish & scenario practice</div>
+    </div>
+  </div>
+  <div id="days-w3"></div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div class="panel" id="panel-quiz">
+  <div class="section-intro">Flashcard quiz — Japanese → English. Track your score as you go.</div>
+  <div class="score-bar"><span>Score</span><strong id="score-display">0 / 0</strong></div>
+  <div class="quiz-box">
+    <div class="q-jp" id="q-jp">—</div>
+    <div class="q-hint" id="q-romaji">—</div>
+    <div class="quiz-options" id="quiz-options"></div>
+    <div id="quiz-result"></div>
+    <button id="quiz-next" onclick="nextQuestion()">Next →</button>
+  </div>
+</div>
+
+<!-- ===== TIPS ===== -->
+<div class="panel" id="panel-tips">
+
+  <div class="cat-label"><span class="jp">文化</span><span class="en">Cultural Tips</span></div>
+
+  <div class="tip-block">
+    <h3>Bowing</h3>
+    <p>A quick nod-bow (15°) is perfectly fine for tourists. Deep bows (30°+) are for formal situations. Never worry about getting it wrong — the effort is always appreciated.</p>
+  </div>
+
+  <div class="tip-block">
+    <h3>Restaurant etiquette</h3>
+    <ul>
+      <li>Wait to be seated — don't seat yourself</li>
+      <li>Oshibori (hot towel) is for your hands, not your face</li>
+      <li>Don't tip — it can be considered rude</li>
+      <li>Slurping noodles loudly is a compliment</li>
+      <li>Pay at the register by the door, not at the table</li>
+      <li>Push the call button on the table to summon staff</li>
+    </ul>
+  </div>
+
+  <div class="tip-block">
+    <h3>Transport essentials</h3>
+    <ul>
+      <li>Get a Suica or Pasmo IC card at any major station</li>
+      <li>Stand on the left on escalators (except Osaka — stand right)</li>
+      <li>Talking on phones on trains is frowned upon — text instead</li>
+      <li>Priority seats (silver/pink) are for elderly and pregnant</li>
+      <li>IC cards work on trains, buses, taxis, and many vending machines</li>
+    </ul>
+  </div>
+
+  <div class="tip-block">
+    <h3>Konbini (convenience stores)</h3>
+    <ul>
+      <li>7-Eleven, Lawson, FamilyMart — open 24/7, everywhere</li>
+      <li>Food is genuinely delicious and cheap (onigiri ~¥120)</li>
+      <li>ATMs here reliably accept foreign cards</li>
+      <li>You can pay bills, print documents, buy tickets here</li>
+    </ul>
+  </div>
+
+  <div class="tip-block">
+    <h3>Useful numbers</h3>
+    <ul>
+      <li>Police: 110</li>
+      <li>Ambulance / Fire: 119</li>
+      <li>Japan Visitor Hotline (English): 050-3816-2787</li>
+      <li>JNTO emergency line: available 24/7 in English</li>
+    </ul>
+  </div>
+
+  <div class="tip-block">
+    <h3>Apps to download before you go</h3>
+    <ul>
+      <li>Google Translate (download Japanese offline + camera mode)</li>
+      <li>Hyperdia or Navitime — train route planning</li>
+      <li>Google Maps (works well for Japan)</li>
+      <li>Suica app (if you have iPhone 8+ or Android NFC)</li>
+    </ul>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+// ======= DATA =======
+const bootcampDays = [
+  // Week 1
+  { day: 1, week: 1, title: "The Big Three", sub: "Sumimasen, arigatō, hai/iie", badge: "15 min", phrase: { jp: "すみません", rom: "Sumimasen", en: "Excuse me" }, tasks: ["Say 'sumimasen' out loud 20 times until it feels natural", "Practice a slight bow as you say it", "Learn to differentiate: arigatō (casual) vs arigatō gozaimasu (polite)", "Write each phrase 5 times in a notebook"] },
+  { day: 2, week: 1, title: "At the Table", sub: "Ordering & getting attention", badge: "15 min", phrase: { jp: "これをください", rom: "Kore wo kudasai", en: "This one, please" }, tasks: ["Point at random objects around your home and say 'kore wo kudasai'", "Practice 'futari desu' (2 people) with 2 fingers", "Drill: sumimasen → point at menu → kore wo kudasai", "Quiz yourself on the 3 phrases from Day 1"] },
+  { day: 3, week: 1, title: "Meal Rituals", sub: "Before & after eating", badge: "15 min", phrase: { jp: "いただきます", rom: "Itadakimasu", en: "Let's eat (before meal)" }, tasks: ["Say itadakimasu before every meal today — make it a habit now", "Learn gochisōsama deshita and say it after every meal", "Watch a YouTube video of someone eating ramen in Japan to see it used naturally", "Practise: sumimasen → kore wo kudasai → oishii → okaikei → gochisōsama"] },
+  { day: 4, week: 1, title: "Numbers 1–10", sub: "Critical for ordering quantities", badge: "20 min", phrase: { jp: "二人です", rom: "Futari desu", en: "Two people" }, tasks: ["Learn: ichi, ni, san, shi, go, roku, nana, hachi, kyū, jū", "Note: people use special counters — hitori, futari, sannin, yonin", "Flash-drill numbers by counting items around you in Japanese", "Practise telling a friend your table size in Japanese"] },
+  { day: 5, week: 1, title: "Understanding Replies", sub: "What staff might say to you", badge: "15 min", phrase: { jp: "少々お待ちください", rom: "Shōshō omachi kudasai", en: "Please wait a moment" }, tasks: ["Learn: 'irasshaimase' (welcome — staff greeting, no reply needed)", "'nannin desu ka' = how many people?", "'kochira e dōzo' = please come this way", "Play YouTube restaurant clips and try to catch familiar words"] },
+  { day: 6, week: 1, title: "Recap & Restaurant Run", sub: "Full scenario drill", badge: "20 min", phrase: { jp: "お会計をお願いします", rom: "Okaikei wo onegaishimasu", en: "The bill, please" }, tasks: ["Do a full mental walk-through: enter → greeted → seated → order → eat → pay → leave", "Time yourself saying the full scenario phrases without pausing", "Take the quiz on this app — aim for 80%+", "Write the 10 restaurant phrases on flashcards"] },
+  { day: 7, week: 1, title: "Rest & Absorb", sub: "Light review day", badge: "10 min", phrase: { jp: "ありがとうございます", rom: "Arigatō gozaimasu", en: "Thank you" }, tasks: ["Flip through your Week 1 flashcards", "Find a Japanese restaurant or food video and try using your phrases mentally", "Say arigatō gozaimasu to 3 people today instead of 'thanks'", "No new phrases — just solidify what you know"] },
+  // Week 2
+  { day: 8, week: 2, title: "Shopping Basics", sub: "Prices, bags, browsing", badge: "15 min", phrase: { jp: "いくらですか？", rom: "Ikura desu ka?", en: "How much is this?" }, tasks: ["Practise pointing at objects and asking 'ikura desu ka?'", "Learn to understand Japanese numbers in prices (hyaku=100, sen=1000, man=10000)", "Drill 'fukuro wa irimasen' until it's instant", "Practise 'kādo de haraemasu ka?' with a rising intonation"] },
+  { day: 9, week: 2, title: "Getting Around", sub: "Asking for directions", badge: "20 min", phrase: { jp: "〜はどこですか？", rom: "~ wa doko desu ka?", en: "Where is ~?" }, tasks: ["Practise: 'toire wa doko desu ka?' (where's the toilet?)", "Learn: migi (right), hidari (left), massugu (straight), chikaku (nearby)", "On Google Maps, look up a landmark in Japan and say the route aloud in Japanese", "Drill all 3 directional words 10 times each"] },
+  { day: 10, week: 2, title: "Transport", sub: "Trains, taxis, stations", badge: "15 min", phrase: { jp: "〜に行きたいです", rom: "~ ni ikitai desu", en: "I want to go to ~" }, tasks: ["Learn the Suica card system — no phrases needed, just tap!", "Practise: '[place name] ni ikitai desu' with 3 real Tokyo destinations", "Learn 'jikan wa dono kurai?' (how long will it take?)", "Download Hyperdia or Google Maps Japan and plan a practice route"] },
+  { day: 11, week: 2, title: "Politeness Upgrade", sub: "Please, sorry, excuse me — the nuances", badge: "15 min", phrase: { jp: "お願いします", rom: "Onegaishimasu", en: "Please (requesting a favour)" }, tasks: ["Difference: kudasai (give me this) vs onegaishimasu (I'm requesting/asking you)", "Practise: 'mō ichido onegaishimasu' (once more please)", "Learn 'shitsurei shimasu' — polite phrase when leaving or interrupting", "Create 5 sentences using onegaishimasu"] },
+  { day: 12, week: 2, title: "I Don't Understand", sub: "Handling confusion gracefully", badge: "15 min", phrase: { jp: "わかりません", rom: "Wakarimasen", en: "I don't understand" }, tasks: ["Drill: wakarimasen with a gentle smile and head tilt", "Practise: 'eigo wo hanasemasu ka?' (do you speak English?)", "Learn: 'yukkuri itte kudasai' (please speak slowly)", "Role-play: someone speaks fast Japanese to you, you respond correctly"] },
+  { day: 13, week: 2, title: "Scenario Chains", sub: "Combining phrases fluently", badge: "20 min", phrase: { jp: "ゆっくり言ってください", rom: "Yukkuri itte kudasai", en: "Please speak slowly" }, tasks: ["Run 3 scenario chains end-to-end: restaurant, shopping, asking directions", "Time each chain — aim for under 30 seconds per scenario", "Record yourself on your phone and play it back", "Identify which phrases still feel unnatural"] },
+  { day: 14, week: 2, title: "Week 2 Recap", sub: "Full quiz + consolidation", badge: "20 min", phrase: { jp: "ありがとうございます！", rom: "Arigatō gozaimasu!", en: "Thank you!" }, tasks: ["Take the full quiz — aim for 90%+", "Write out all 25+ phrases from memory", "Review any gaps with the phrase cards", "Take a 5-min break — you're over halfway there!"] },
+  // Week 3
+  { day: 15, week: 3, title: "Speed Drills", sub: "Fluency over accuracy", badge: "20 min", phrase: { jp: "すみません、〜はどこですか？", rom: "Sumimasen, ~ wa doko desu ka?", en: "Excuse me, where is ~?" }, tasks: ["Set a timer: say every phrase in 60 seconds without looking", "Drill the most common combined phrases 5 times each", "Focus on any phrases you got wrong in yesterday's quiz", "Practise speaking with natural Japanese rhythm — rise at end of questions"] },
+  { day: 16, week: 3, title: "Cultural Immersion", sub: "Etiquette & unspoken rules", badge: "15 min", phrase: { jp: "ごちそうさまでした", rom: "Gochisōsama deshita", en: "Thank you for the meal" }, tasks: ["Read the Cultural Tips section of this app", "Watch a Japan travel vlog — note what phrases you recognise", "Practise your bow (15° nod for casual, 30° for gratitude)", "Learn: don't point with one finger — use your whole hand"] },
+  { day: 17, week: 3, title: "Emergency Prep", sub: "Safety phrases", badge: "10 min", phrase: { jp: "助けてください！", rom: "Tasukete kudasai!", en: "Help, please!" }, tasks: ["Memorise the 3 emergency numbers: 110, 119, JNTO hotline", "Practise 'byōin wa doko desu ka?' and 'saifu wo nakushimashita'", "Save the JNTO English helpline in your phone now", "Know where the koban (police box) is in your area"] },
+  { day: 18, week: 3, title: "Konbini Mastery", sub: "Convenience store phrases", badge: "15 min", phrase: { jp: "温めてください", rom: "Atatamete kudasai", en: "Please heat this up" }, tasks: ["Learn: 'atatamete kudasai' (please heat this — for konbini food)", "Practise: 'fukuro wa irimasen' at imaginary checkout", "Learn: 'hashi wa irimasen' (no chopsticks needed)", "Plan your konbini breakfast order in Japanese"] },
+  { day: 19, week: 3, title: "Full Scenario Day", sub: "Morning to night simulation", badge: "25 min", phrase: { jp: "おはようございます", rom: "Ohayō gozaimasu", en: "Good morning" }, tasks: ["Simulate a full day in Japan — morning to night — using only Japanese phrases", "Breakfast at konbini → train → sightseeing → lunch → shopping → dinner → hotel", "Time the whole simulation — how smooth does it feel?", "Note any gaps and review those phrase cards"] },
+  { day: 20, week: 3, title: "Final Polish", sub: "Pronunciation & tone", badge: "20 min", phrase: { jp: "よろしくお願いします", rom: "Yoroshiku onegaishimasu", en: "Please treat me well / Nice to meet you" }, tasks: ["Learn 'yoroshiku onegaishimasu' — the most useful 'nice to meet you'", "Focus on vowel sounds: a=ah, i=ee, u=oo, e=eh, o=oh", "Japanese is flat in pitch — avoid English stress patterns", "Record yourself saying 10 phrases and compare to a native YouTube speaker"] },
+  { day: 21, week: 3, title: "You're Ready. いってらっしゃい！", sub: "Depart with confidence", badge: "🎌", phrase: { jp: "いってきます！", rom: "Ittekimasu!", en: "I'm off! (said when leaving for a trip)" }, tasks: ["Final full quiz — celebrate hitting 90%+", "Pack your flashcards (or screenshot the phrases panel)", "Download Google Translate offline Japanese pack", "You have 3 weeks of daily practice — trust yourself. The Japanese people will meet your effort with incredible kindness. Enjoy every moment! 🎌"] }
+];
+
+const quizPhrases = [
+  { jp: "すみません", rom: "Sumimasen", en: "Excuse me" },
+  { jp: "ありがとうございます", rom: "Arigatō gozaimasu", en: "Thank you (polite)" },
+  { jp: "これをください", rom: "Kore wo kudasai", en: "This one, please" },
+  { jp: "いくらですか？", rom: "Ikura desu ka?", en: "How much?" },
+  { jp: "お会計をお願いします", rom: "Okaikei wo onegaishimasu", en: "The bill, please" },
+  { jp: "おいしい！", rom: "Oishii!", en: "Delicious!" },
+  { jp: "わかりません", rom: "Wakarimasen", en: "I don't understand" },
+  { jp: "いただきます", rom: "Itadakimasu", en: "Let's eat (before meal)" },
+  { jp: "ごちそうさまでした", rom: "Gochisōsama deshita", en: "Thanks for the meal" },
+  { jp: "二人です", rom: "Futari desu", en: "Table for two" },
+  { jp: "はい", rom: "Hai", en: "Yes" },
+  { jp: "いいえ", rom: "Iie", en: "No" },
+  { jp: "右", rom: "Migi", en: "Right" },
+  { jp: "左", rom: "Hidari", en: "Left" },
+  { jp: "まっすぐ", rom: "Massugu", en: "Straight ahead" },
+  { jp: "助けてください！", rom: "Tasukete kudasai!", en: "Help, please!" },
+  { jp: "見ているだけです", rom: "Mite iru dake desu", en: "Just looking" },
+  { jp: "水をください", rom: "Mizu wo kudasai", en: "Water, please" },
+  { jp: "おすすめは何ですか？", rom: "Osusume wa nan desu ka?", en: "What do you recommend?" },
+  { jp: "こんにちは", rom: "Konnichiwa", en: "Hello" },
+];
+
+// ======= RENDER BOOTCAMP =======
+function renderBootcamp() {
+  [1, 2, 3].forEach(w => {
+    const container = document.getElementById(`days-w${w}`);
+    bootcampDays.filter(d => d.week === w).forEach(d => {
+      container.innerHTML += `
+        <div class="day-card" id="day-${d.day}">
+          <div class="day-card-header" onclick="toggleDay(${d.day})">
+            <div class="day-num">${d.day}</div>
+            <div>
+              <div class="day-title">${d.title}</div>
+              <div class="day-subtitle">${d.sub}</div>
+            </div>
+            <div class="day-badge">${d.badge}</div>
+          </div>
+          <div class="day-body">
+            <div class="focus-phrase">
+              <div class="label">Focus Phrase</div>
+              <div class="jp">${d.phrase.jp}</div>
+              <div class="rom">${d.phrase.rom} — ${d.phrase.en}</div>
+            </div>
+            <ul>${d.tasks.map(t => `<li>${t}</li>`).join('')}</ul>
+          </div>
+        </div>`;
+    });
+  });
+}
+
+// ======= QUIZ =======
+let quizIndex = 0;
+let quizScore = 0;
+let quizTotal = 0;
+let shuffled = [];
+let answered = false;
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function startQuiz() {
+  shuffled = shuffle(quizPhrases);
+  quizIndex = 0;
+  quizScore = 0;
+  quizTotal = 0;
+  nextQuestion();
+}
+
+function nextQuestion() {
+  if (quizIndex >= shuffled.length) { quizIndex = 0; shuffled = shuffle(quizPhrases); }
+  answered = false;
+  const q = shuffled[quizIndex];
+  document.getElementById('q-jp').textContent = q.jp;
+  document.getElementById('q-romaji').textContent = q.rom;
+  document.getElementById('quiz-result').textContent = '';
+  document.getElementById('quiz-next').style.display = 'none';
+
+  // 4 options: 1 correct + 3 random wrong
+  let others = shuffle(quizPhrases.filter(p => p.en !== q.en)).slice(0, 3);
+  let options = shuffle([q, ...others]);
+
+  const container = document.getElementById('quiz-options');
+  container.innerHTML = '';
+  options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.textContent = opt.en;
+    btn.onclick = () => checkAnswer(btn, opt.en, q.en);
+    container.appendChild(btn);
+  });
+  quizIndex++;
+}
+
+function checkAnswer(btn, chosen, correct) {
+  if (answered) return;
+  answered = true;
+  quizTotal++;
+  const allBtns = document.querySelectorAll('.quiz-options button');
+  allBtns.forEach(b => {
+    if (b.textContent === correct) b.classList.add('correct');
+  });
+  if (chosen === correct) {
+    quizScore++;
+    document.getElementById('quiz-result').textContent = '✓ Correct!';
+  } else {
+    btn.classList.add('wrong');
+    document.getElementById('quiz-result').textContent = `✗ The answer was: ${correct}`;
+  }
+  document.getElementById('score-display').textContent = `${quizScore} / ${quizTotal}`;
+  document.getElementById('quiz-next').style.display = 'inline-block';
+}
+
+// ======= UI HELPERS =======
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'quiz' && quizTotal === 0) startQuiz();
+}
+
+function toggleCard(el) {
+  el.classList.toggle('open');
+}
+
+function toggleDay(num) {
+  const card = document.getElementById('day-' + num);
+  card.classList.toggle('open');
+}
+
+// ======= INIT =======
+renderBootcamp();
+</script>
+</body>
+</html>
